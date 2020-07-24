@@ -26,6 +26,7 @@ var elAlert = document.querySelector('.alert');
 var elMines = document.querySelector('.mines');
 var elBtn = document.querySelector('.resetBtn');
 var sound;
+var gHintCount = 0;
 
 
 
@@ -85,7 +86,6 @@ function createBoard(value) {
         } else board[num1][num2].isMine = true;
     }
 
-
     //counting neighbors
     for (var i = 0; i < board.length; i++) {
         for (var j = 0; j < board[0].length; j++) {
@@ -99,7 +99,6 @@ function createBoard(value) {
 
 
 function renderBoard(board) {
-
     var strHTML = ``;
     for (var i = 0; i < board.length; i++) {
         strHTML += `<tr>`;
@@ -142,6 +141,7 @@ function cellClicked(i, j) {
         var elCel = document.querySelector(`.not-mine-${i}-${j}`);
         if (cell.minesAroundCount === 0) elCel.innerHTML = '';
         else elCel.innerHTML = cell.minesAroundCount;
+        changeFontColor(elCel, cell.minesAroundCount);
         elCel.style.backgroundColor = 'lightgray';
     } else {
         if (gHintFlag) {
@@ -151,6 +151,7 @@ function cellClicked(i, j) {
             var elCel = document.querySelector(`.not-mine-${i}-${j}`);
             if (cell.minesAroundCount === 0) elCel.innerHTML = '';
             else elCel.innerHTML = cell.minesAroundCount;
+            changeFontColor(elCel, cell.minesAroundCount);
             elCel.style.backgroundColor = 'lightgray';
             checkGameOver(i, j);
             if (cell.minesAroundCount === 0) reveal(i, j);
@@ -162,6 +163,7 @@ function cellClicked(i, j) {
     }
     checkGameOver(i, j);
 }
+
 
 function reduceMinesCount(I, J) {
     for (var i = I - 1; i <= I + 1; i++) {
@@ -197,11 +199,15 @@ function setFlag(i, j) {
 
 
 function hint(value) {
+    gHintCount++;
     if (gElHints[value].innerHTML === NO_HINT) return
-    else if (!gHintFlag) gHintFlag = true;
-    gElHints[value].innerHTML = NO_HINT;
-    gElHints[value].style.backgroundColor = 'black';
-    gElHints[value].style.cursor = 'context-menu';
+    if (!gHintFlag) {
+        gHintFlag = true;
+        gElHints[value].innerHTML = NO_HINT;
+        gElHints[value].style.backgroundColor = 'black';
+        gElHints[value].style.cursor = 'context-menu';
+        if (!gInterval && gHintCount === 1) gInterval = setInterval(stopWatch, 10);
+    }
 }
 
 function showHint(i, j) {
@@ -224,6 +230,7 @@ function revealHint(I, J) {
                     elCel.style.backgroundColor = 'lightgray';
                     if (gBoard[i][j].minesAroundCount === 0) elCel.innerHTML = '';
                     else elCel.innerHTML = gBoard[i][j].minesAroundCount;
+                    changeFontColor(elCel, gBoard[i][j].minesAroundCount);
                     gBoard[i][j].isShown = true;
                     gBoard[i][j].isHint = true;
 
@@ -253,7 +260,7 @@ function close(I, J) {
                     elCel.innerHTML = FLAG;
                     gBoard[i][j].isShown = false;
                     gBoard[i][j].isHint = false;
-                }else {
+                } else {
                     elCel.style.backgroundColor = 'white';
                     elCel.innerHTML = '';
                     gBoard[i][j].isShown = false;
@@ -278,10 +285,12 @@ function reveal(I, J) {
                 elCel.style.backgroundColor = 'lightgray';
                 if (gBoard[i][j].minesAroundCount === 0) elCel.innerHTML = '';
                 else elCel.innerHTML = gBoard[i][j].minesAroundCount;
+                changeFontColor(elCel, gBoard[i][j].minesAroundCount);
                 gBoard[i][j].isShown = true;
             }
         }
     }
+    checkGameOver(I, J);
 }
 
 
@@ -354,8 +363,11 @@ function reset() {
     gMinutes = 0;
     gSeconds = 0;
     gClickCount = 0;
+    gHintCount = 0;
     gHintFlag = false;
     sound.pause();
+    gInterval = null;
+    gHitInterval = null;
 
     gElEmoji.innerHTML = NORMAL;
     document.querySelector('.timer').innerHTML = '';
@@ -375,4 +387,37 @@ function reset() {
     }
     elBtn.style.display = 'none';
     renderBoard(gBoard);
-}   
+}
+
+
+
+function changeFontColor(elm, value) {
+    //console.log(value);
+    switch (value) {
+        case 1:
+            elm.style.color = 'blue';
+            break;
+        case 2:
+            elm.style.color = 'green';
+            break;
+        case 3:
+            elm.style.color = 'red';
+            break;
+        case 4:
+            elm.style.color = 'brown';
+            break;
+        case 5:
+            elm.style.color = 'purple';
+            break;
+        case 6:
+            elm.style.color = 'yellow';
+            break;
+        case 7:
+            elm.style.color = ' ';
+            break;
+        case 8:
+            elm.style.color = 'gold';
+            break;
+
+    }
+}
