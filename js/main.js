@@ -55,6 +55,7 @@ elBoard.oncontextmenu = function () {
     return false;
 }
 
+
 function createBoard(value) {
     var board = [];
 
@@ -174,9 +175,9 @@ function reduceMinesCount(I, J) {
 }
 
 function increaseMinesCount() {
-        gBoard[0][1].minesAroundCount++;
-        gBoard[1][0].minesAroundCount++;
-        gBoard[1][1].minesAroundCount++;
+    gBoard[0][1].minesAroundCount++;
+    gBoard[1][0].minesAroundCount++;
+    gBoard[1][1].minesAroundCount++;
 }
 
 function setFlag(i, j) {
@@ -191,6 +192,7 @@ function setFlag(i, j) {
         cell.isMarked = false;
         elCel.innerText = '';
     }
+
 }
 
 
@@ -216,7 +218,7 @@ function revealHint(I, J) {
         if (i < 0 || i >= gBoard.length) continue;
         for (var j = J - 1; j <= J + 1; j++) {
             if (j < 0 || j >= gBoard[i].length) continue;
-            if (!gBoard[i][j].isShown && !gBoard[i][j].isMarked) {
+            if (!gBoard[i][j].isShown) {
                 if (!gBoard[i][j].isMine) {
                     var elCel = document.querySelector(`.cell-${i}-${j}`);
                     elCel.style.backgroundColor = 'lightgray';
@@ -246,10 +248,17 @@ function close(I, J) {
             if (j < 0 || j >= gBoard[i].length) continue;
             if (gBoard[i][j].isShown && gBoard[i][j].isHint) {
                 var elCel = document.querySelector(`.cell-${i}-${j}`);
-                elCel.style.backgroundColor = 'white';
-                elCel.innerHTML = '';
-                gBoard[i][j].isShown = false;
-                gBoard[i][j].isHint = false;
+                if (gBoard[i][j].isMarked) {
+                    elCel.style.backgroundColor = 'white';
+                    elCel.innerHTML = FLAG;
+                    gBoard[i][j].isShown = false;
+                    gBoard[i][j].isHint = false;
+                }else {
+                    elCel.style.backgroundColor = 'white';
+                    elCel.innerHTML = '';
+                    gBoard[i][j].isShown = false;
+                    gBoard[i][j].isHint = false;
+                }
             }
         }
     }
@@ -264,8 +273,8 @@ function reveal(I, J) {
         if (i < 0 || i >= gBoard.length) continue;
         for (var j = J - 1; j <= J + 1; j++) {
             if (j < 0 || j >= gBoard[i].length) continue;
-            if (!gBoard[i][j].isMine && !gBoard[i][j].isShown) {
-                var elCel = document.querySelector(`.not-mine-${i}-${j}`);
+            if (!gBoard[i][j].isMine && !gBoard[i][j].isShown && !gBoard[i][j].isMarked) {
+                var elCel = document.querySelector(`.cell-${i}-${j}`);
                 elCel.style.backgroundColor = 'lightgray';
                 if (gBoard[i][j].minesAroundCount === 0) elCel.innerHTML = '';
                 else elCel.innerHTML = gBoard[i][j].minesAroundCount;
@@ -305,9 +314,8 @@ function checkGameOver(i, j) {
 
     var markCount = gMine;
     var currMarkCount = getAllMarked();
-
     if (currShowCount === showCount && markCount === currMarkCount) {
-        if(gInterval) clearInterval(gInterval);
+        clearInterval(gInterval);
         elAlert.innerText = 'YOU WON!';
         elAlert.style.display = 'inline'
         sound = new Audio('../sounds/cheers.mp3');
@@ -315,7 +323,6 @@ function checkGameOver(i, j) {
         elAlert.style.backgroundColor = 'lightGreen';
         gElEmoji.innerHTML = WIN;
         elBtn.style.display = 'inline';
-        clearTimeout(gHitInterval);
     }
 }
 
